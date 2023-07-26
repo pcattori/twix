@@ -1,4 +1,9 @@
 {
+  "lint": {
+    "rules": {
+      "exclude": ["prefer-const"]
+    }
+  },
   "tasks": {
     "twix": "deno run --allow-read src/main.ts"
   }
