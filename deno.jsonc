@@ -1,0 +1,5 @@
+{
+  "tasks": {
+    "twix": "deno run --allow-read src/main.ts"
+  }
+}
