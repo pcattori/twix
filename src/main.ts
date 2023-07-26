@@ -1,3 +1,5 @@
+import { scan } from "./scanner.ts";
+
 let { args } = Deno
 
 if (args.length === 0) {
@@ -13,11 +15,13 @@ function repl() {
   while (true) {
     let line = prompt("> ")
     if (line === null) break
-    console.log(line)
+    let tokens = scan(line)
+    console.log(tokens)
   }
 }
 
 async function run(file: string) {
   let source = await Deno.readTextFile(file)
-  console.log(source)
+  let tokens = scan(source)
+  console.log(tokens)
 }
