@@ -28,7 +28,17 @@ function format({ source, offset, length, message }: Err): string {
   ${underline}`
 }
 
-export class SyntaxErrors extends Error {
+export class SyntaxErr extends Error {
+  error: Err
+
+  constructor(error: Err) {
+    let message = format(error)
+    super(message)
+    this.error = error
+  }
+}
+
+export class SyntaxErrs extends Error {
   errors: Err[]
 
   constructor(errors: Err[]) {

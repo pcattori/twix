@@ -1,4 +1,4 @@
-import { SyntaxErrors, type Err } from "./error.ts";
+import { SyntaxErrs, type Err, SyntaxErr } from "./error.ts";
 import { type Token, type Type } from "./token.ts";
 
 export async function scan(source: string): Promise<Token[]> {
@@ -15,7 +15,7 @@ class Scanner {
     this.source = source
   }
 
-  scan(): Token[] {
+  async scan(): Promise<Token[]> {
     let tokens: Token[] = []
     let errors: Err[] = []
 
@@ -25,7 +25,12 @@ class Scanner {
     } | undefined = undefined
 
     while (!this.is_at_end()) {
-      let type = this.scan_type()
+      let type = await this.scan_type().catch(thrown => {
+        if (!(thrown instanceof SyntaxErr)) throw thrown
+        errors.push(thrown.error)
+        return undefined
+      })
+      if (type === undefined) continue
 
       if (type.type === "UNKNOWN") {
         if (unexpected === undefined) {
@@ -38,14 +43,17 @@ class Scanner {
         unexpected = undefined
       }
 
-      tokens.push(this.token(type))
+      if (type.type !== "WHITESPACE" && type.type !== "COMMENT") {
+        tokens.push(this.token(type))
+      }
+
       this.start = this.current
     }
 
     if (unexpected !== undefined) {
         errors.push(this.unexpected(unexpected))
     }
-    if (errors.length > 0) throw new SyntaxErrors(errors)
+    if (errors.length > 0) throw new SyntaxErrs(errors)
 
     tokens.push(this.token({ type: "EOF" }))
     return tokens
@@ -55,7 +63,7 @@ class Scanner {
     return this.current >= this.source.length;
   }
 
-  scan_type(): Type {
+  async scan_type(): Promise<Type> {
     let c = this.advance()
     switch (true) {
       case c === "(": return { type: "LEFT_PAREN" }
@@ -89,8 +97,28 @@ class Scanner {
         return { type: "SLASH" }
       }
       case [' ', '\r', '\t', '\n'].includes(c): return { type: "WHITESPACE" }
+      case c === '"': return this.string()
     }
     return { type: 'UNKNOWN' }
+  }
+
+  string(): Type {
+    while (this.peek() !== '"' && !this.is_at_end()) {
+      this.advance()
+    }
+
+    if (this.is_at_end()) {
+      throw new SyntaxErr({
+        source: this.source,
+        offset: this.start,
+        length: 1,
+        message: "Unterminated string."
+      })
+    }
+
+    this.advance()
+    let value = this.source.substring(this.start + 1, this.current - 1)
+    return { type: "STRING", value }
   }
 
   advance(): string {

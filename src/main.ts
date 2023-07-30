@@ -1,4 +1,4 @@
-import { SyntaxErrors } from "./error.ts";
+import { SyntaxErrs } from "./error.ts";
 import { scan } from "./scanner.ts";
 
 let { args } = Deno
@@ -18,7 +18,7 @@ async function repl() {
     if (line === null) break
 
     let tokens = await scan(line).catch(thrown => {
-      if (!(thrown instanceof SyntaxErrors)) throw thrown
+      if (!(thrown instanceof SyntaxErrs)) throw thrown
       console.log("\n" + thrown.message + "\n")
     })
 
