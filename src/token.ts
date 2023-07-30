@@ -8,10 +8,10 @@ export function lexeme(loc: Location): string {
   return loc.source.slice(loc.offset, loc.offset + loc.length)
 }
 
-export type Token = Location & (
+export type Type =
   // single character tokens
   | { type: 'LEFT_PAREN'}
-  | { type: 'LEFT_PAREN'}
+  | { type: 'RIGHT_PAREN'}
   | { type: 'LEFT_BRACE' }
   | { type: 'RIGHT_BRACE' }
   | { type: 'COMMA' }
@@ -53,5 +53,9 @@ export type Token = Location & (
   // identifiers
   | { type: 'IDENTIFIER' }
   // special tokens
+  | { type: 'COMMENT' }
+  | { type: 'WHITESPACE' }
+  | { type: 'UNKNOWN' }
   | { type: 'EOF' }
-)
+
+export type Token = Location & Type

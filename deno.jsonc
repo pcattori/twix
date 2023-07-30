@@ -1,7 +1,7 @@
 {
   "lint": {
     "rules": {
-      "exclude": ["prefer-const"]
+      "exclude": ["prefer-const", "require-await"]
     }
   },
   "tasks": {
