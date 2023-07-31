@@ -98,6 +98,7 @@ class Scanner {
       }
       case [' ', '\r', '\t', '\n'].includes(c): return { type: "WHITESPACE" }
       case c === '"': return this.string()
+      case is_digit(c): return this.number()
     }
     return { type: 'UNKNOWN' }
   }
@@ -121,6 +122,18 @@ class Scanner {
     return { type: "STRING", value }
   }
 
+  number(): Type {
+    while (is_digit(this.peek())) this.advance()
+
+    if (this.peek() === "." && is_digit(this.peek_next())) {
+      this.advance()
+      while (is_digit(this.peek())) this.advance()
+    }
+
+    let value = parseFloat(this.source.substring(this.start, this.current))
+    return { type: "NUMBER", value }
+  }
+
   advance(): string {
     let c = this.source[this.current]
     this.current += 1
@@ -137,6 +150,11 @@ class Scanner {
   peek(): string {
     if (this.is_at_end()) return "\0"
     return this.source[this.current]
+  }
+
+  peek_next(): string {
+    if (this.current + 1 >= this.source.length) return "\0"
+    return this.source[this.current + 1]
   }
 
   token(type: Type): Token {
@@ -156,3 +174,9 @@ class Scanner {
     }
   }
 }
+
+function is_digit(c: string): boolean {
+  return c >= "0" && c <= "9"
+}
+
+

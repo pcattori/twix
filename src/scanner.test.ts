@@ -100,3 +100,14 @@ test("unterminated string", async () => {
     `)
   })
 })
+
+test("number", async () => {
+  let source = "1234 56.78 9.0"
+  let tokens = await scan(source)
+  assertEquals(tokens, [
+    { source, type: 'NUMBER', offset: 0, length: 4, value: 1234 },
+    { source, type: 'NUMBER', offset: 5, length: 5, value: 56.78 },
+    { source, type: 'NUMBER', offset: 11, length: 3, value: 9 },
+    { source, type: 'EOF', offset: source.length, length: 0 }
+  ])
+})
