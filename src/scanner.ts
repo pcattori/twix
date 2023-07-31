@@ -99,6 +99,7 @@ class Scanner {
       case [' ', '\r', '\t', '\n'].includes(c): return { type: "WHITESPACE" }
       case c === '"': return this.string()
       case is_digit(c): return this.number()
+      case is_alpha(c): return this.identifier()
     }
     return { type: 'UNKNOWN' }
   }
@@ -132,6 +133,31 @@ class Scanner {
 
     let value = parseFloat(this.source.substring(this.start, this.current))
     return { type: "NUMBER", value }
+  }
+
+  identifier(): Type {
+    while (is_alpha_numeric(this.peek())) this.advance()
+    let lexeme = this.source.substring(this.start, this.current)
+    switch (lexeme) {
+      case "and": return { type: "AND" }
+      case "class": return { type: "CLASS" }
+      case "else": return { type: "ELSE" }
+      case "false": return { type: "FALSE" }
+      case "for": return { type: "FOR" }
+      case "fun": return { type: "FUN" }
+      case "if": return { type: "IF" }
+      case "nil": return { type: "NIL" }
+      case "or": return { type: "OR" }
+      case "print": return { type: "PRINT" }
+      case "return": return { type: "RETURN" }
+      case "super": return { type: "SUPER" }
+      case "this": return { type: "THIS" }
+      case "true": return { type: "TRUE" }
+      case "var": return { type: "VAR" }
+      case "while": return { type: "WHILE" }
+
+    }
+    return { type: "IDENTIFIER" }
   }
 
   advance(): string {
@@ -179,4 +205,13 @@ function is_digit(c: string): boolean {
   return c >= "0" && c <= "9"
 }
 
+function is_alpha(c: string): boolean {
+  return (c >= "a" && c <= "z") ||
+         (c >= "A" && c <= "Z") ||
+          c === "_"
+}
+
+function is_alpha_numeric(c: string): boolean {
+  return is_alpha(c) || is_digit(c)
+}
 

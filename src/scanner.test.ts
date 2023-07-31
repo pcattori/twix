@@ -111,3 +111,38 @@ test("number", async () => {
     { source, type: 'EOF', offset: source.length, length: 0 }
   ])
 })
+
+test("identifier", async () => {
+  let source = "foo bar baz"
+  let tokens = await scan(source)
+  assertEquals(tokens, [
+    { source, type: 'IDENTIFIER', offset: 0, length: 3 },
+    { source, type: 'IDENTIFIER', offset: 4, length: 3 },
+    { source, type: 'IDENTIFIER', offset: 8, length: 3 },
+    { source, type: 'EOF', offset: source.length, length: 0 }
+  ])
+})
+
+test("keywords", async () => {
+  let source = "and class else false for fun if nil or print return super this true var while"
+  let tokens = await scan(source)
+  assertEquals(tokens, [
+    { source, type: 'AND', offset: 0, length: 3 },
+    { source, type: 'CLASS', offset: 4, length: 5 },
+    { source, type: 'ELSE', offset: 10, length: 4 },
+    { source, type: 'FALSE', offset: 15, length: 5 },
+    { source, type: 'FOR', offset: 21, length: 3 },
+    { source, type: 'FUN', offset: 25, length: 3 },
+    { source, type: 'IF', offset: 29, length: 2 },
+    { source, type: 'NIL', offset: 32, length: 3 },
+    { source, type: 'OR', offset: 36, length: 2 },
+    { source, type: 'PRINT', offset: 39, length: 5 },
+    { source, type: 'RETURN', offset: 45, length: 6 },
+    { source, type: 'SUPER', offset: 52, length: 5 },
+    { source, type: 'THIS', offset: 58, length: 4 },
+    { source, type: 'TRUE', offset: 63, length: 4 },
+    { source, type: 'VAR', offset: 68, length: 3 },
+    { source, type: 'WHILE', offset: 72, length: 5 },
+    { source, type: 'EOF', offset: source.length, length: 0 }
+  ])
+})
