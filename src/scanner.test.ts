@@ -1,4 +1,5 @@
 import { assertEquals } from "https://deno.land/std@0.196.0/assert/assert_equals.ts";
+import { assertRejects } from "https://deno.land/std@0.196.0/assert/assert_rejects.ts";
 import outdent from 'https://deno.land/x/outdent@v0.8.0/mod.ts';
 
 import { scan } from "./scanner.ts";
@@ -8,17 +9,12 @@ let {test} = Deno;
 
 test("unexpected characters", async () => {
   let source = "@#"
+  assertRejects(() => scan(source), SyntaxErrs, outdent`
+    ERROR: Unexpected characters.
 
-  await scan(source).catch(thrown => {
-    if (!(thrown instanceof SyntaxErrs)) throw thrown
-    assertEquals(thrown.errors.length, 1)
-    assertEquals(thrown.message, outdent`
-      ERROR: Unexpected characters.
-
-        1 | @#
-            ^^
-    `)
-  })
+      1 | @#
+          ^^
+  `)
 })
 
 test("single character tokens", async () => {
@@ -89,16 +85,12 @@ test("string", async () => {
 
 test("unterminated string", async () => {
   let source = `"terminated"\n"unterminated\nhello, world\n!`
-  await scan(source).catch(thrown => {
-    if (!(thrown instanceof SyntaxErrs)) throw thrown
-    assertEquals(thrown.errors.length, 1)
-    assertEquals(thrown.message, outdent`
+  assertRejects(() => scan(source), SyntaxErrs, outdent`
       ERROR: Unterminated string.
 
         2 | "unterminated
             ^
-    `)
-  })
+  `)
 })
 
 test("number", async () => {
