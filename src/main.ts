@@ -1,4 +1,6 @@
-import { SyntaxErrs } from "./error.ts";
+import { RuntimeErr, SyntaxErr, SyntaxErrs } from "./error.ts";
+import { interpret } from "./interpreter.ts";
+import { parse } from "./parser.ts";
 import { scan } from "./scanner.ts";
 
 let { args } = Deno
@@ -19,15 +21,47 @@ async function repl() {
 
     let tokens = await scan(line).catch(thrown => {
       if (!(thrown instanceof SyntaxErrs)) throw thrown
-      console.log("\n" + thrown.message + "\n")
+      console.error("\n" + thrown.message + "\n")
+      return undefined
     })
+    if (tokens === undefined) continue
 
-    console.log(tokens)
+    let expr = await parse(tokens).catch(thrown => {
+      if (!(thrown instanceof SyntaxErr)) throw thrown
+      console.error("\n" + thrown.message + "\n")
+      return undefined
+    })
+    if (expr === undefined) continue
+
+    let value = await interpret(expr).catch(thrown => {
+      if (!(thrown instanceof RuntimeErr)) throw thrown
+      console.error("\n" + thrown.message + "\n")
+      return undefined
+    })
+    if (value === undefined) continue
+
+    console.log(value)
   }
 }
 
 async function run(file: string) {
   let source = await Deno.readTextFile(file)
-  let tokens = scan(source)
-  console.log(tokens)
+  let tokens = await scan(source).catch(thrown => {
+      if (!(thrown instanceof SyntaxErrs)) throw thrown
+      console.error("\n" + thrown.message + "\n")
+      Deno.exit(65)
+  })
+
+  let expr = await parse(tokens).catch(thrown => {
+      if (!(thrown instanceof SyntaxErrs)) throw thrown
+      console.error("\n" + thrown.message + "\n")
+      Deno.exit(65)
+  })
+
+  let value = interpret(expr).catch(thrown => {
+    if (!(thrown instanceof RuntimeErr)) throw thrown
+    console.error("\n" + thrown.message + "\n")
+    Deno.exit(70)
+  })
+  console.log(value)
 }

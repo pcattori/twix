@@ -47,3 +47,13 @@ export class SyntaxErrs extends Error {
     this.errors = errors
   }
 }
+
+export class RuntimeErr extends Error {
+  error: Err
+
+  constructor(error: Err) {
+    let message = format(error)
+    super(message)
+    this.error = error
+  }
+}
