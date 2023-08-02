@@ -75,7 +75,24 @@ class Parser {
   }
 
   expression(): Expr {
-    return this.equality()
+    return this.assignment()
+  }
+
+  assignment(): Expr {
+    let expr = this.equality()
+
+    let equals = this.peek()
+    if (equals.type === "EQUAL") {
+      this.advance()
+      let value = this.assignment()
+
+      if (expr.type !== "VARIABLE") {
+        throw new SyntaxErr({...equals, message: "Invalid assignment target."})
+      }
+      return { type: "ASSIGN", name: expr.name, value }
+    }
+
+    return expr
   }
 
   equality(): Expr {

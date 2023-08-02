@@ -33,3 +33,13 @@ test("global variables", async () => {
   await run(source, { print: (value) => output.push(value) })
   assertEquals(output.join("\n"), "3")
 })
+
+test("assign", async () => {
+  let source = outdent`
+    var a = 1;
+    print a = 2;
+  `
+  let output: Value[] = []
+  await run(source, { print: (value) => output.push(value) })
+  assertEquals(output.join("\n"), "2")
+})

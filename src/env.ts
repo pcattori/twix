@@ -19,4 +19,16 @@ export class Env {
       message: `Undefined variable '${identifier}'.`
     })
   }
+
+  assign(name: Token, value: Value) {
+    let identifier = lexeme(name)
+    if (this.map.has(identifier)) {
+      this.map.set(identifier, value)
+      return
+    }
+    throw new RuntimeErr({
+      ...name,
+      message: `Undefined variable '${name}'.`
+    })
+  }
 }

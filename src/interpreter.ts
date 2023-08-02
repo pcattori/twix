@@ -46,9 +46,16 @@ export class Interpreter {
     if (expr.type === "UNARY") return this.eval_unary(expr.op, expr.expr)
     if (expr.type === "BINARY") return this.eval_binary(expr.left, expr.op, expr.right)
     if (expr.type === "VARIABLE") return this.env.get(expr.name)
+    if (expr.type === "ASSIGN") return this.eval_assign(expr.name, expr.value)
 
     // unreachable
     return null
+  }
+
+  eval_assign(name: Token, value: Expr): Value {
+    let val = this.eval(value)
+    this.env.assign(name, val)
+    return val
   }
 
   eval_grouping(expr: Expr): Value {

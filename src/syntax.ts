@@ -12,6 +12,7 @@ export type Expr =
   | { type: "UNARY", op: Token, expr: Expr  }
   | { type: "BINARY", left: Expr, op: Token, right: Expr }
   | { type: "VARIABLE", name: Token }
+  | { type: "ASSIGN", name: Token, value: Expr }
 
 export type Stmt =
   | { type: "EXPRESSION", expr: Expr }
