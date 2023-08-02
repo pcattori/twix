@@ -1,3 +1,4 @@
+import { Env } from "./env.ts";
 import { run } from "./run.ts";
 
 let { args } = Deno
@@ -12,11 +13,13 @@ if (args.length === 0) {
 }
 
 async function repl() {
+  let env = new Env()
   while (true) {
     let line = prompt("> ")
     if (line === null) break
 
     await run(line, {
+      env,
       onSyntaxErrs: (errs) => console.error("\n" + errs.message + "\n"),
       onRuntimeErr: (err) => console.error("\n" + err.message + "\n"),
     })
