@@ -1,5 +1,5 @@
 import { RuntimeErr } from "./error.ts";
-import { Expr } from "./expr.ts";
+import { Expr, Stmt } from "./syntax.ts";
 import { Token } from "./token.ts";
 
 type Value =
@@ -22,12 +22,27 @@ function is_equal(a: Value, b: Value): boolean {
   return false
 }
 
-export async function interpret(expr: Expr): Promise<Value> {
+export async function interpret(stmts: Stmt[]) {
   let interpreter = new Interpreter()
-  return interpreter.eval(expr)
+  return interpreter.interpret(stmts)
 }
 
-class Interpreter {
+export class Interpreter {
+
+  interpret(stmts: Stmt[]) {
+    for (let stmt of stmts) {
+      this.exec(stmt)
+    }
+  }
+
+  exec(stmt: Stmt) {
+    if (stmt.type === "EXPRESSION") return this.eval(stmt.expr)
+    if (stmt.type === "PRINT") {
+      let val = this.eval(stmt.expr)
+      console.log(val)
+    }
+  }
+
   eval(expr: Expr): Value {
     if (expr.type === "NUMBER") return expr.value
     if (expr.type === "STRING") return expr.value

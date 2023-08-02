@@ -26,21 +26,18 @@ async function repl() {
     })
     if (tokens === undefined) continue
 
-    let expr = await parse(tokens).catch(thrown => {
+    let stmts = await parse(tokens).catch(thrown => {
       if (!(thrown instanceof SyntaxErr)) throw thrown
       console.error("\n" + thrown.message + "\n")
       return undefined
     })
-    if (expr === undefined) continue
+    if (stmts === undefined) continue
 
-    let value = await interpret(expr).catch(thrown => {
+    await interpret(stmts).catch(thrown => {
       if (!(thrown instanceof RuntimeErr)) throw thrown
       console.error("\n" + thrown.message + "\n")
       return undefined
     })
-    if (value === undefined) continue
-
-    console.log(value)
   }
 }
 
@@ -52,16 +49,15 @@ async function run(file: string) {
       Deno.exit(65)
   })
 
-  let expr = await parse(tokens).catch(thrown => {
+  let stmts = await parse(tokens).catch(thrown => {
       if (!(thrown instanceof SyntaxErrs)) throw thrown
       console.error("\n" + thrown.message + "\n")
       Deno.exit(65)
   })
 
-  let value = interpret(expr).catch(thrown => {
+  interpret(stmts).catch(thrown => {
     if (!(thrown instanceof RuntimeErr)) throw thrown
     console.error("\n" + thrown.message + "\n")
     Deno.exit(70)
   })
-  console.log(value)
 }

@@ -1,6 +1,6 @@
 import { assertEquals } from "https://deno.land/std@0.196.0/assert/assert_equals.ts";
 
-import { interpret } from "./interpreter.ts";
+import { Interpreter } from "./interpreter.ts";
 
 let {test} = Deno;
 
@@ -11,27 +11,29 @@ let location = {
 } as const
 
 test("eval literal", async () => {
+  let i = new Interpreter()
   assertEquals(
-    await interpret({ type: "NUMBER", value: 1 }),
+    i.eval({ type: "NUMBER", value: 1 }),
     1,
   )
   assertEquals(
-    await interpret({ type: "STRING", value: "hello" }),
+    i.eval({ type: "STRING", value: "hello" }),
     "hello",
   )
   assertEquals(
-    await interpret({ type: "BOOLEAN", value: true }),
+    i.eval({ type: "BOOLEAN", value: true }),
     true,
   )
   assertEquals(
-    await interpret({ type: "NIL" }),
+    i.eval({ type: "NIL" }),
     null,
   )
 })
 
 test("eval grouping", async () => {
+  let i = new Interpreter()
   assertEquals(
-    await interpret({
+    i.eval({
       type: "GROUPING",
       expr: { type: "NUMBER", value: 1 },
     }),
@@ -40,8 +42,9 @@ test("eval grouping", async () => {
 })
 
 test("eval unary", async () => {
+  let i = new Interpreter()
   assertEquals(
-    await interpret({
+    i.eval({
       type: "UNARY",
       op: { type: "MINUS", ...location },
       expr: { type: "NUMBER", value: 1 },
@@ -50,7 +53,7 @@ test("eval unary", async () => {
   )
 
   assertEquals(
-    await interpret({
+    i.eval({
       type: "UNARY",
       op: { type: "BANG", ...location },
       expr: { type: "BOOLEAN", value: false },
@@ -60,8 +63,9 @@ test("eval unary", async () => {
 })
 
 test("eval binary", async () => {
+  let i = new Interpreter()
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 1 },
       op: { type: "PLUS", ...location },
@@ -70,7 +74,7 @@ test("eval binary", async () => {
     3
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 3 },
       op: { type: "MINUS", ...location },
@@ -79,7 +83,7 @@ test("eval binary", async () => {
     -1
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 5.5 },
       op: { type: "STAR", ...location },
@@ -88,7 +92,7 @@ test("eval binary", async () => {
     33
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 7 },
       op: { type: "SLASH", ...location },
@@ -97,7 +101,7 @@ test("eval binary", async () => {
     0.875
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 0.1 },
       op: { type: "GREATER", ...location },
@@ -106,7 +110,7 @@ test("eval binary", async () => {
     false
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 0.4 },
       op: { type: "GREATER_EQUAL", ...location },
@@ -115,7 +119,7 @@ test("eval binary", async () => {
     true
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 0.1 },
       op: { type: "LESS", ...location },
@@ -124,7 +128,7 @@ test("eval binary", async () => {
     true
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: 0.4 },
       op: { type: "LESS_EQUAL", ...location },
@@ -134,7 +138,7 @@ test("eval binary", async () => {
   )
 
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "STRING", value: "hello" },
       op: { type: "PLUS", ...location },
@@ -144,7 +148,7 @@ test("eval binary", async () => {
   )
 
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "STRING", value: "hello" },
       op: { type: "EQUAL_EQUAL", ...location },
@@ -153,7 +157,7 @@ test("eval binary", async () => {
     true,
   )
   assertEquals(
-    await interpret({
+    i.eval({
       type: "BINARY",
       left: { type: "NUMBER", value: -1 },
       op: { type: "BANG_EQUAL", ...location },
