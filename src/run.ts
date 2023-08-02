@@ -2,7 +2,8 @@ import { SyntaxErrs, RuntimeErr } from "./error.ts";
 
 import { scan } from "./scanner.ts";
 import { parse } from "./parser.ts";
-import { Interpreter, Value} from "./interpreter.ts";
+import { Interpreter } from "./interpreter.ts";
+import { Value } from "./value.ts";
 
 export async function run(code: string, options: {
   print?: (value: Value) => void,

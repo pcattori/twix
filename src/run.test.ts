@@ -2,7 +2,7 @@ import { assertEquals } from "https://deno.land/std@0.196.0/assert/assert_equals
 import outdent from "https://deno.land/x/outdent@v0.8.0/mod.ts";
 
 import { run } from "./run.ts";
-import { Value } from "./interpreter.ts";
+import { Value } from "./value.ts";
 
 let {test} = Deno
 

@@ -1,26 +1,7 @@
 import { RuntimeErr } from "./error.ts";
 import { Expr, Stmt } from "./syntax.ts";
 import { Token } from "./token.ts";
-
-export type Value =
-  | number
-  | string
-  | boolean
-  | null
-
-function is_truthy(value: Value): boolean {
-  if (value === null) return false
-  if (typeof value === "boolean") return value
-  return true
-}
-
-function is_equal(a: Value, b: Value): boolean {
-  if (a === null && b === null) return true
-  if (typeof a === "boolean" && typeof b === "boolean") return a === b
-  if (typeof a === "string" && typeof b === "string") return a === b
-  if (typeof a === "number" && typeof b === "number") return Math.abs(a - b) < Number.EPSILON
-  return false
-}
+import { Value, is_equal, is_truthy } from "./value.ts";
 
 type Print = (value: Value) => void
 
