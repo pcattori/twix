@@ -1,8 +1,8 @@
 import { SyntaxErr } from "./error.ts";
-import { Expr } from "./expr.ts";
+import { Expr, Stmt } from "./syntax.ts";
 import { Token } from "./token.ts";
 
-export async function parse(tokens: Token[]): Promise<Expr> {
+export async function parse(tokens: Token[]): Promise<Stmt[]> {
   let parser = new Parser(tokens)
   return parser.parse()
 }
@@ -15,8 +15,34 @@ class Parser {
     this.tokens = tokens
   }
 
-  parse(): Expr {
-    return this.expression()
+  parse(): Stmt[] {
+    let stmts: Stmt[] = []
+
+    while (!this.is_at_end()) {
+      stmts.push(this.statement())
+    }
+    return stmts
+  }
+
+  statement(): Stmt {
+    let token = this.peek()
+    if (token.type === "PRINT") {
+      this.advance()
+      return this.print_statement()
+    }
+    return this.expression_statement()
+  }
+
+  print_statement(): Stmt {
+    let expr = this.expression()
+    this.consume("SEMICOLON", "Expect ';' after value.")
+    return { type: "PRINT", expr }
+  }
+
+  expression_statement(): Stmt {
+    let expr = this.expression()
+    this.consume("SEMICOLON", "Expect ';' after value.")
+    return { type: "EXPRESSION", expr }
   }
 
   expression(): Expr {

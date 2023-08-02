@@ -11,59 +11,68 @@ let {test} = Deno;
 test("parse binary", async () => {
   let source = "1 + 2;"
   let tokens = await scan(source)
-  let expr = await parse(tokens)
-  assertEquals(expr, {
-    type: "BINARY",
-    left: {
-      type: "NUMBER",
-      value: 1,
-    },
-    op: {
-      source,
-      offset: 2,
-      length: 1,
-      type: "PLUS",
-    },
-    right: {
-      type: "NUMBER",
-      value: 2,
-    },
-  })
+  let stmts = await parse(tokens)
+  assertEquals(stmts, [{
+    type: "EXPRESSION",
+    expr: {
+      type: "BINARY",
+      left: {
+        type: "NUMBER",
+        value: 1,
+      },
+      op: {
+        source,
+        offset: 2,
+        length: 1,
+        type: "PLUS",
+      },
+      right: {
+        type: "NUMBER",
+        value: 2,
+      },
+    }
+  }])
 })
 
 test("parse unary", async () => {
   let source = "-1;"
   let tokens = await scan(source)
-  let expr = await parse(tokens)
-  assertEquals(expr, {
-    type: "UNARY",
-    op: {
-      source,
-      offset: 0,
-      length: 1,
-      type: "MINUS",
-    },
+  let stmts = await parse(tokens)
+  assertEquals(stmts, [{
+    type: "EXPRESSION",
     expr: {
-      type: "NUMBER",
-      value: 1,
-    },
-  })
+      type: "UNARY",
+      op: {
+        source,
+        offset: 0,
+        length: 1,
+        type: "MINUS",
+      },
+      expr: {
+        type: "NUMBER",
+        value: 1,
+      },
+    }
+  }])
 })
 
 test("parse grouping", async () => {
   let source = "((1));"
   let tokens = await scan(source)
-  let expr = await parse(tokens)
-  assertEquals(expr, {
-    type: "GROUPING",
+  let stmts = await parse(tokens)
+  assertEquals(stmts, [{
+    type: "EXPRESSION",
     expr: {
       type: "GROUPING",
       expr: {
-        type: "NUMBER",
-        value: 1,
+        type: "GROUPING",
+        expr: {
+          type: "NUMBER",
+          value: 1,
+        },
       },
-    },
-  })
+    }
+  }])
 })
 
 test("missing right paren", async () => {
