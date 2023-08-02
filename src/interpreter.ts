@@ -27,7 +27,14 @@ export async function interpret(stmts: Stmt[]) {
   return interpreter.interpret(stmts)
 }
 
+type Print = (value: Value) => void
+
 export class Interpreter {
+  print: Print
+
+  constructor(print: Print = console.log) {
+    this.print = print
+  }
 
   interpret(stmts: Stmt[]) {
     for (let stmt of stmts) {
@@ -39,7 +46,7 @@ export class Interpreter {
     if (stmt.type === "EXPRESSION") return this.eval(stmt.expr)
     if (stmt.type === "PRINT") {
       let val = this.eval(stmt.expr)
-      console.log(val)
+      this.print(val)
     }
   }
 
