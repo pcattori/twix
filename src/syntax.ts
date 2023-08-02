@@ -11,3 +11,7 @@ export type Expr =
   | { type: "GROUPING", expr: Expr }
   | { type: "UNARY", op: Token, expr: Expr  }
   | { type: "BINARY", left: Expr, op: Token, right: Expr }
+
+export type Stmt =
+  | { type: "EXPRESSION", expr: Expr }
+  | { type: "PRINT", expr: Expr }
