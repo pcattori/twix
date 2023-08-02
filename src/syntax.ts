@@ -18,3 +18,4 @@ export type Stmt =
   | { type: "EXPRESSION", expr: Expr }
   | { type: "PRINT", expr: Expr }
   | { type: "VAR", name: Token, initializer?: Expr }
+  | { type: "BLOCK", stmts: Stmt[] }

@@ -59,6 +59,10 @@ class Parser {
       this.advance()
       return this.print_statement()
     }
+    if (token.type === "LEFT_BRACE") {
+      this.advance()
+      return this.block()
+    }
     return this.expression_statement()
   }
 
@@ -66,6 +70,17 @@ class Parser {
     let expr = this.expression()
     this.consume("SEMICOLON", "Expect ';' after value.")
     return { type: "PRINT", expr }
+  }
+
+  block(): Stmt {
+    let stmts: Stmt[] = []
+
+    while (this.peek().type !== "RIGHT_BRACE" && !this.is_at_end()) {
+      stmts.push(this.declaration())
+    }
+
+    this.consume("RIGHT_BRACE", "Expect '}' after block.")
+    return { type: "BLOCK", stmts }
   }
 
   expression_statement(): Stmt {

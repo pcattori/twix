@@ -43,3 +43,40 @@ test("assign", async () => {
   await run(source, { print: (value) => output.push(value) })
   assertEquals(output.join("\n"), "2")
 })
+
+test("scope", async () => {
+  let source = outdent`
+    var a = "global a";
+    var b = "global b";
+    var c = "global c";
+    {
+      var a = "outer a";
+      var b = "outer b";
+      {
+        var a = "inner a";
+        print a;
+        print b;
+        print c;
+      }
+      print a;
+      print b;
+      print c;
+    }
+    print a;
+    print b;
+    print c;
+  `
+  let output: Value[] = []
+  await run(source, { print: (value) => output.push(value) })
+  assertEquals(output.join("\n"), outdent`
+    inner a
+    outer b
+    global c
+    outer a
+    outer b
+    global c
+    global a
+    global b
+    global c
+  `)
+})

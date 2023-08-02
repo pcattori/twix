@@ -34,6 +34,19 @@ export class Interpreter {
       let value = stmt.initializer !== undefined ? this.eval(stmt.initializer) : null
       this.env.define(lexeme(stmt.name), value)
     }
+    if (stmt.type === "BLOCK") this.exec_block(stmt.stmts)
+  }
+
+  exec_block(stmts: Stmt[]) {
+    let enclosing = this.env
+    try {
+      this.env = new Env(enclosing)
+      for (let stmt of stmts) {
+        this.exec(stmt)
+      }
+    } finally {
+      this.env = enclosing
+    }
   }
 
   eval(expr: Expr): Value {
