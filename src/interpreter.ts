@@ -2,7 +2,7 @@ import { RuntimeErr } from "./error.ts";
 import { Expr, Stmt } from "./syntax.ts";
 import { Token } from "./token.ts";
 
-type Value =
+export type Value =
   | number
   | string
   | boolean
@@ -22,21 +22,16 @@ function is_equal(a: Value, b: Value): boolean {
   return false
 }
 
-export async function interpret(stmts: Stmt[]) {
-  let interpreter = new Interpreter()
-  return interpreter.interpret(stmts)
-}
-
 type Print = (value: Value) => void
 
 export class Interpreter {
   print: Print
 
-  constructor(print: Print = console.log) {
-    this.print = print
+  constructor(options: { print?: Print } = {}) {
+    this.print = options.print ?? console.log
   }
 
-  interpret(stmts: Stmt[]) {
+  async interpret(stmts: Stmt[]) {
     for (let stmt of stmts) {
       this.exec(stmt)
     }

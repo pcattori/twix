@@ -1,14 +1,11 @@
-import { RuntimeErr, SyntaxErr, SyntaxErrs } from "./error.ts";
-import { interpret } from "./interpreter.ts";
-import { parse } from "./parser.ts";
-import { scan } from "./scanner.ts";
+import { run } from "./run.ts";
 
 let { args } = Deno
 
 if (args.length === 0) {
   repl()
 } else if (args.length === 1) {
-  run(args[0])
+  file(args[0])
 } else {
   console.log("Usage: twix [script]")
   Deno.exit(64)
@@ -19,45 +16,23 @@ async function repl() {
     let line = prompt("> ")
     if (line === null) break
 
-    let tokens = await scan(line).catch(thrown => {
-      if (!(thrown instanceof SyntaxErrs)) throw thrown
-      console.error("\n" + thrown.message + "\n")
-      return undefined
-    })
-    if (tokens === undefined) continue
-
-    let stmts = await parse(tokens).catch(thrown => {
-      if (!(thrown instanceof SyntaxErr)) throw thrown
-      console.error("\n" + thrown.message + "\n")
-      return undefined
-    })
-    if (stmts === undefined) continue
-
-    await interpret(stmts).catch(thrown => {
-      if (!(thrown instanceof RuntimeErr)) throw thrown
-      console.error("\n" + thrown.message + "\n")
-      return undefined
+    await run(line, {
+      onSyntaxErrs: (errs) => console.error("\n" + errs.message + "\n"),
+      onRuntimeErr: (err) => console.error("\n" + err.message + "\n"),
     })
   }
 }
 
-async function run(file: string) {
-  let source = await Deno.readTextFile(file)
-  let tokens = await scan(source).catch(thrown => {
-      if (!(thrown instanceof SyntaxErrs)) throw thrown
-      console.error("\n" + thrown.message + "\n")
+async function file(path: string) {
+  let source = await Deno.readTextFile(path)
+  await run(source, {
+    onSyntaxErrs: (errs) => {
+      console.error("\n" + errs.message + "\n")
       Deno.exit(65)
-  })
-
-  let stmts = await parse(tokens).catch(thrown => {
-      if (!(thrown instanceof SyntaxErrs)) throw thrown
-      console.error("\n" + thrown.message + "\n")
-      Deno.exit(65)
-  })
-
-  interpret(stmts).catch(thrown => {
-    if (!(thrown instanceof RuntimeErr)) throw thrown
-    console.error("\n" + thrown.message + "\n")
-    Deno.exit(70)
+    },
+    onRuntimeErr: (err) => {
+      console.error("\n" + err.message + "\n")
+      Deno.exit(70)
+    },
   })
 }
