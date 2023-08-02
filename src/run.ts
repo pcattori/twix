@@ -4,8 +4,10 @@ import { scan } from "./scanner.ts";
 import { parse } from "./parser.ts";
 import { Interpreter } from "./interpreter.ts";
 import { Value } from "./value.ts";
+import { Env } from "./env.ts";
 
 export async function run(code: string, options: {
+  env?: Env,
   print?: (value: Value) => void,
   onSyntaxErrs?: (errs: SyntaxErrs) => void,
   onRuntimeErr?: (err: RuntimeErr) => void,
@@ -24,7 +26,7 @@ export async function run(code: string, options: {
   })
   if (stmts === null) return
 
-  let interpreter = new Interpreter({ print: options.print })
+  let interpreter = new Interpreter({ env: options.env, print: options.print })
   await interpreter.interpret(stmts).catch(thrown => {
     if (!(thrown instanceof RuntimeErr)) throw thrown
     options.onRuntimeErr?.(thrown)

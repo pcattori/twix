@@ -1,14 +1,20 @@
+import { Env } from "./env.ts";
 import { RuntimeErr } from "./error.ts";
 import { Expr, Stmt } from "./syntax.ts";
-import { Token } from "./token.ts";
+import { Token, lexeme } from "./token.ts";
 import { Value, is_equal, is_truthy } from "./value.ts";
 
 type Print = (value: Value) => void
 
 export class Interpreter {
+  env: Env
   print: Print
 
-  constructor(options: { print?: Print } = {}) {
+  constructor(options: {
+    env?: Env,
+    print?: Print,
+  } = {}) {
+    this.env = options.env ?? new Env()
     this.print = options.print ?? console.log
   }
 
@@ -24,6 +30,10 @@ export class Interpreter {
       let val = this.eval(stmt.expr)
       this.print(val)
     }
+    if (stmt.type === "VAR") {
+      let value = stmt.initializer !== undefined ? this.eval(stmt.initializer) : null
+      this.env.define(lexeme(stmt.name), value)
+    }
   }
 
   eval(expr: Expr): Value {
@@ -35,6 +45,7 @@ export class Interpreter {
     if (expr.type === "GROUPING") return this.eval_grouping(expr.expr)
     if (expr.type === "UNARY") return this.eval_unary(expr.op, expr.expr)
     if (expr.type === "BINARY") return this.eval_binary(expr.left, expr.op, expr.right)
+    if (expr.type === "VARIABLE") return this.env.get(expr.name)
 
     // unreachable
     return null

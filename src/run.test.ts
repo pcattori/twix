@@ -21,3 +21,15 @@ test("print", async () => {
     3
   `)
 })
+
+test("global variables", async () => {
+  let source = outdent`
+    var a = 1;
+    var b = 2;
+    print a + b;
+  `
+
+  let output: Value[] = []
+  await run(source, { print: (value) => output.push(value) })
+  assertEquals(output.join("\n"), "3")
+})
