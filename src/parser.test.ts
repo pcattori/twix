@@ -4,7 +4,7 @@ import outdent from 'https://deno.land/x/outdent@v0.8.0/mod.ts';
 
 import { scan } from "./scanner.ts";
 import { parse } from "./parser.ts";
-import { SyntaxErr } from "./error.ts";
+import { SyntaxErrs } from "./error.ts";
 
 let {test} = Deno;
 
@@ -78,7 +78,7 @@ test("parse grouping", async () => {
 test("missing right paren", async () => {
   let source = "(1;"
   let tokens = await scan(source)
-  assertRejects(() => parse(tokens), SyntaxErr, outdent`
+  assertRejects(() => parse(tokens), SyntaxErrs, outdent`
     ERROR: Expect ')' after expression.
 
       1 | (1;

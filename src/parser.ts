@@ -1,4 +1,4 @@
-import { SyntaxErr } from "./error.ts";
+import { Err, SyntaxErr, SyntaxErrs } from "./error.ts";
 import { Expr, Stmt } from "./syntax.ts";
 import { Token } from "./token.ts";
 
@@ -17,11 +17,40 @@ class Parser {
 
   parse(): Stmt[] {
     let stmts: Stmt[] = []
+    let errs: Err[] = []
 
     while (!this.is_at_end()) {
-      stmts.push(this.statement())
+      try {
+        stmts.push(this.declaration())
+      } catch (thrown) {
+        if (!(thrown instanceof SyntaxErr)) throw thrown
+        errs.push(thrown.error)
+        this.synchronize()
+      }
     }
+    if (errs.length > 0) throw new SyntaxErrs(errs)
     return stmts
+  }
+
+  declaration(): Stmt {
+    if (this.peek().type === "VAR") {
+      this.advance()
+      return this.var_declaration()
+    }
+    return this.statement()
+  }
+
+  var_declaration(): Stmt {
+    let name = this.consume("IDENTIFIER", "Expect variable name.")
+
+    let initializer: Expr | undefined
+    if (this.peek().type === "EQUAL") {
+      this.advance()
+      initializer = this.expression()
+    }
+
+    this.consume("SEMICOLON", "Expect ';' after variable declaration.")
+    return { type: "VAR", name, initializer }
   }
 
   statement(): Stmt {
@@ -115,6 +144,7 @@ class Parser {
     if (token.type === "NIL") expr = { type: "NIL" }
     if (token.type === "NUMBER") expr = { type: "NUMBER", value: token.value }
     if (token.type === "STRING") expr = { type: "STRING", value: token.value }
+    if (token.type === "IDENTIFIER") expr = { type: "VARIABLE", name: token }
 
     if (expr) {
       this.advance()
@@ -134,6 +164,27 @@ class Parser {
       length: token.length,
       message: "Expect expression."
     })
+  }
+
+  synchronize() {
+    let token = this.advance()
+
+    while (!this.is_at_end()) {
+      if (token.type === "SEMICOLON") return
+
+      if ([
+        "CLASS",
+        "FUN",
+        "VAR",
+        "FOR",
+        "IF",
+        "WHILE",
+        "PRINT",
+        "RETURN",
+      ].includes(token.type)) return
+
+      token = this.advance()
+    }
   }
 
   advance(): Token {
