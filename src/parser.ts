@@ -113,7 +113,7 @@ class Parser {
   }
 
   assignment(): Expr {
-    let expr = this.equality()
+    let expr = this.or()
 
     let equals = this.peek()
     if (equals.type === "EQUAL") {
@@ -124,6 +124,30 @@ class Parser {
         throw new SyntaxErr({...equals, message: "Invalid assignment target."})
       }
       return { type: "ASSIGN", name: expr.name, value }
+    }
+
+    return expr
+  }
+
+  or(): Expr {
+    let expr = this.and()
+
+    while (this.peek().type === "OR") {
+      let op = this.advance()
+      let right = this.and()
+      expr = { type: "LOGICAL", left: expr, op, right }
+    }
+
+    return expr
+  }
+
+  and(): Expr {
+    let expr = this.equality()
+
+    while (this.peek().type === "AND") {
+      let op = this.advance()
+      let right = this.equality()
+      expr = { type: "LOGICAL", left: expr, op, right }
     }
 
     return expr

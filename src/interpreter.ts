@@ -69,9 +69,22 @@ export class Interpreter {
     if (expr.type === "BINARY") return this.eval_binary(expr.left, expr.op, expr.right)
     if (expr.type === "VARIABLE") return this.env.get(expr.name)
     if (expr.type === "ASSIGN") return this.eval_assign(expr.name, expr.value)
+    if (expr.type === "LOGICAL") return this.eval_logical(expr.left, expr.op, expr.right)
 
     // unreachable
     return null
+  }
+
+  eval_logical(left: Expr, op: Token, right: Expr): Value {
+    let left_val = this.eval(left)
+
+    if (op.type === "OR") {
+      if (is_truthy(left_val)) return left_val
+    } else {
+      if (!is_truthy(left_val)) return left_val
+    }
+
+    return this.eval(right)
   }
 
   eval_assign(name: Token, value: Expr): Value {
