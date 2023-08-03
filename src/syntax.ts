@@ -19,3 +19,4 @@ export type Stmt =
   | { type: "PRINT", expr: Expr }
   | { type: "VAR", name: Token, initializer?: Expr }
   | { type: "BLOCK", stmts: Stmt[] }
+  | { type: "IF", condition: Expr, then_branch: Stmt, else_branch?: Stmt }

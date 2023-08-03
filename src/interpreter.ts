@@ -25,6 +25,7 @@ export class Interpreter {
   }
 
   exec(stmt: Stmt) {
+    if (stmt.type === "IF") return this.exec_if(stmt.condition, stmt.then_branch, stmt.else_branch)
     if (stmt.type === "EXPRESSION") return this.eval(stmt.expr)
     if (stmt.type === "PRINT") {
       let val = this.eval(stmt.expr)
@@ -35,6 +36,14 @@ export class Interpreter {
       this.env.define(lexeme(stmt.name), value)
     }
     if (stmt.type === "BLOCK") this.exec_block(stmt.stmts)
+  }
+
+  exec_if(condition: Expr, then_branch: Stmt, else_branch?: Stmt) {
+    if (is_truthy(this.eval(condition))) {
+      this.exec(then_branch)
+    } else if (else_branch !== undefined) {
+      this.exec(else_branch)
+    }
   }
 
   exec_block(stmts: Stmt[]) {

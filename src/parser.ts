@@ -55,6 +55,10 @@ class Parser {
 
   statement(): Stmt {
     let token = this.peek()
+    if (token.type === "IF") {
+      this.advance()
+      return this.if_statement()
+    }
     if (token.type === "PRINT") {
       this.advance()
       return this.print_statement()
@@ -64,6 +68,21 @@ class Parser {
       return this.block()
     }
     return this.expression_statement()
+  }
+
+  if_statement(): Stmt {
+    this.consume("LEFT_PAREN", "Expect '(' after 'if'.")
+    let condition = this.expression()
+    this.consume("RIGHT_PAREN", "Expect ')' after if condition.")
+
+    let then_branch = this.statement()
+    let else_branch: Stmt | undefined
+    if (this.peek().type === "ELSE") {
+      this.advance()
+      else_branch = this.statement()
+    }
+
+    return { type: "IF", condition, then_branch, else_branch }
   }
 
   print_statement(): Stmt {
