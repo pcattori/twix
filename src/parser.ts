@@ -55,6 +55,10 @@ class Parser {
 
   statement(): Stmt {
     let token = this.peek()
+    if (token.type === "FOR") {
+      this.advance()
+      return this.for_statement()
+    }
     if (token.type === "WHILE") {
       this.advance()
       return this.while_statement()
@@ -72,6 +76,48 @@ class Parser {
       return this.block()
     }
     return this.expression_statement()
+  }
+
+  for_statement(): Stmt {
+    this.consume("LEFT_PAREN", "Expect '(' after 'for'.")
+
+    let initializer: Stmt | undefined
+    if (this.peek().type === "SEMICOLON") {
+      this.advance()
+    } else if (this.peek().type === "VAR") {
+      this.advance()
+      initializer = this.var_declaration()
+    } else {
+      initializer = this.expression_statement()
+    }
+
+    let condition: Expr | undefined
+    if (this.peek().type !== "SEMICOLON") {
+      condition = this.expression()
+    }
+
+    this.consume("SEMICOLON", "Expect ';' after for condition.")
+
+    let increment: Expr | undefined
+    if (this.peek().type !== "RIGHT_PAREN") {
+      increment = this.expression()
+    }
+
+    this.consume("RIGHT_PAREN", "Expect ')' after for clauses.")
+
+    let body = this.statement()
+
+    if (increment !== undefined) {
+      body = { type: "BLOCK", stmts: [body, { type: "EXPRESSION", expr: increment }] }
+    }
+
+    if (condition === undefined) condition = { type: "BOOLEAN", value: true }
+
+    if (initializer !== undefined) {
+      body = { type: "BLOCK", stmts: [initializer, { type: "WHILE", condition, body }] }
+    }
+
+    return body
   }
 
   while_statement(): Stmt {

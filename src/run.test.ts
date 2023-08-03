@@ -80,3 +80,41 @@ test("scope", async () => {
     global c
   `)
 })
+
+test("control flow", async () => {
+  let source = outdent`
+    var a = 0;
+    var temp;
+
+    for (var b = 1; a < 10000; b = temp + b) {
+      print a;
+      temp = a;
+      a = b;
+    }
+  `
+  let output: Value[] = []
+  await run(source, { print: (value) => output.push(value) })
+  assertEquals(output.join("\n"), outdent`
+    0
+    1
+    1
+    2
+    3
+    5
+    8
+    13
+    21
+    34
+    55
+    89
+    144
+    233
+    377
+    610
+    987
+    1597
+    2584
+    4181
+    6765
+  `)
+})
