@@ -55,6 +55,10 @@ class Parser {
 
   statement(): Stmt {
     let token = this.peek()
+    if (token.type === "WHILE") {
+      this.advance()
+      return this.while_statement()
+    }
     if (token.type === "IF") {
       this.advance()
       return this.if_statement()
@@ -68,6 +72,14 @@ class Parser {
       return this.block()
     }
     return this.expression_statement()
+  }
+
+  while_statement(): Stmt {
+    this.consume("LEFT_PAREN", "Expect '(' after 'while'.")
+    let condition = this.expression()
+    this.consume("RIGHT_PAREN", "Expect ')' after condition.")
+    let body = this.statement()
+    return { type: "WHILE", condition, body }
   }
 
   if_statement(): Stmt {

@@ -25,6 +25,7 @@ export class Interpreter {
   }
 
   exec(stmt: Stmt) {
+    if (stmt.type === "WHILE") return this.exec_while(stmt.condition, stmt.body)
     if (stmt.type === "IF") return this.exec_if(stmt.condition, stmt.then_branch, stmt.else_branch)
     if (stmt.type === "EXPRESSION") return this.eval(stmt.expr)
     if (stmt.type === "PRINT") {
@@ -36,6 +37,10 @@ export class Interpreter {
       this.env.define(lexeme(stmt.name), value)
     }
     if (stmt.type === "BLOCK") this.exec_block(stmt.stmts)
+  }
+
+  exec_while(condition: Expr, body: Stmt) {
+    while(is_truthy(this.eval(condition))) this.exec(body)
   }
 
   exec_if(condition: Expr, then_branch: Stmt, else_branch?: Stmt) {

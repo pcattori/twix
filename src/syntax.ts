@@ -21,3 +21,4 @@ export type Stmt =
   | { type: "VAR", name: Token, initializer?: Expr }
   | { type: "BLOCK", stmts: Stmt[] }
   | { type: "IF", condition: Expr, then_branch: Stmt, else_branch?: Stmt }
+  | { type: "WHILE", condition: Expr, body: Stmt }
